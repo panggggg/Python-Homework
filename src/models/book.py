@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
 class CreateBook(BaseModel):
@@ -15,4 +15,5 @@ class UpdateBook(BaseModel):
     pageCount: Optional[int]
     authors: Optional[str]
     categories: Optional[str]
-    updated_at: datetime = Field(default_factory=datetime.now)
+    created_at: Optional[str]
+    updated_at: str
