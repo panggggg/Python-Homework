@@ -1,0 +1,86 @@
+[
+    {
+        "title": "Unlocking Android",
+        "pageCount": 416,
+        "authors": ["W. Frank Ableson", "Charlie Collins", "Robi Sen"],
+        "categories": ["Open Source", "Mobile"]
+    },
+    {
+        "title": "Android in Action, Second Edition",
+        "pageCount": 592,
+        "authors": ["W. Frank Ableson", "Robi Sen"],
+        "categories": ["Java"]
+    },
+    {
+        "title": "Specification by Example",
+        "pageCount": 0,
+        "authors": ["Gojko Adzic"],
+        "categories": ["Software Engineering"]
+    },
+    {
+        "title": "Flex 3 in Action",
+        "pageCount": 576,
+        "authors": ["Tariq Ahmed with Jon Hirschi", "Faisal Abid"],
+        "categories": ["Internet"]
+    },
+    {
+        "title": "Flex 4 in Action",
+        "pageCount": 600,
+        "authors": ["Tariq Ahmed", "Dan Orlando", "John C. Bland II", "Joel Hooks"],
+        "categories": ["Internet"]
+    },
+    {
+        "title": "Collective Intelligence in Action",
+        "pageCount": 425,
+        "authors": ["Satnam Alag"],
+        "categories": ["Internet"]
+    },
+    {
+        "title": "Zend Framework in Action",
+        "pageCount": 432,
+        "authors": ["Rob Allen", "Nick Lo", "Steven Brown"],
+        "categories": ["Web Development"]
+    },
+    {
+        "title": "Flex on Java",
+        "pageCount": 265,
+        "authors": ["Bernerd Allmon", "Jeremy Anderson"],
+        "categories": ["Internet"]
+    },
+    {
+        "title": "Griffon in Action",
+        "pageCount": 375,
+        "authors": ["Andres Almiray", "Danno Ferrin", "", "James Shingler"],
+        "categories": ["Java"]
+    },
+    {
+        "title": "OSGi in Depth",
+        "pageCount": 325,
+        "authors": ["Alexandre de Castro Alves"],
+        "categories": ["Java"]
+    },
+    {
+        "title": "Flexible Rails",
+        "pageCount": 592,
+        "authors": ["Peter Armstrong"],
+        "categories": ["Web Development"]
+    },
+    {
+        "title": "Hello! Flex 4",
+        "pageCount": 258,
+        "authors": ["Peter Armstrong"],
+        "categories": ["Internet"]
+    },
+    {
+        "title": "Coffeehouse",
+        "pageCount": 316,
+        "authors": ["Levi Asher", "Christian Crumlish"],
+        "categories": ["Miscellaneous"]
+    },
+    {
+        "title": "Team Foundation Server 2008 in Action",
+        "pageCount": 344,
+        "authors": ["Jamil Azher"],
+        "categories": ["Microsoft .NET"]
+    }
+    ]

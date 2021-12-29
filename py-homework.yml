@@ -1,0 +1,30 @@
+version: "3.5"
+services:
+  rabbitmq:
+    container_name: hw-rabbitmq
+    image: rabbitmq:3.8.3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: "root"
+      RABBITMQ_DEFAULT_PASS: "root"
+    restart: always
+  
+  mongo:
+    container_name: hw-mongo
+    image: mongo:4.0
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "root"
+    restart: always
+
+  redis:
+    container_name: hw-redis
+    image: redis:5.0.7-alpine
+    ports:
+      - 6379:6379
+    command: redis-server --requirepass root
+    restart: always
