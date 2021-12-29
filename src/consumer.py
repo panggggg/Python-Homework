@@ -33,8 +33,16 @@ channel.exchange_declare(exchange="py-homework", exchange_type="direct")
 
 def callback(ch, method, properties, body):
     message = json.loads(body)
-    title = message.get("title")
-    key = title.replace(" ", "")
+    book_title = message.get("title")
+    key = book_title.replace(" ", "")
+    
+    redis = {}
+    redis["title"] = message.get("title")
+    redis["pageCount"] = message.get("pageCount")
+    redis["authors"] = message.get("authors")
+    redis["categories"] = message.get("categories")
+    redis_connect.set(key, str(redis))
+
     print("Receive message: ")
     print(f"""
             Title: {message.get("title")}
@@ -42,16 +50,15 @@ def callback(ch, method, properties, body):
             Authors: {message.get("authors")}
             Categories: {message.get("categories")}
         """)
-
-    redis = {}
-    redis["title"] = message.get("title")
-    redis["pageCount"] = message.get("pageCount")
-    redis["authors"] = message.get("authors")
-    redis["categories"] = message.get("categories")
-
-    redis_connect.set(key, str(redis))
-    mongodb.save_to_mongo(message)
-    print("Successfully saved!")
+    if redis_connect.get(key) is None:
+        print("redis:", redis_connect.get(key))
+        redis_connect.set(key, str(redis))
+        mongodb.save_to_mongo(message)
+        print("Successfully saved!")
+    else:
+        redis_connect.set(key, str(redis))
+        mongodb.update_to_mongo({'title': book_title}, message)
+        print("Successfully updated!")
     channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
