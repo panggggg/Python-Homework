@@ -28,5 +28,5 @@ class Mongo:
         return self.connection.insert_one(message)
 
     def update_to_mongo(self, query, message: UpdateBook):
-        return self.connection.update_one()
+        return self.connection.update_one(query, message, upsert=True)
 
