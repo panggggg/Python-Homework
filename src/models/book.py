@@ -7,8 +7,8 @@ class CreateBook(BaseModel):
     pageCount: int
     authors: str
     categories: str
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
+    created_at: str
+    updated_at: str
 
 class UpdateBook(BaseModel):
     title: Optional[str]
