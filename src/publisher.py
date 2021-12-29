@@ -65,11 +65,13 @@ key = get_title.replace(" ", "")
 message_for_check = setup_message(message_dict)
 redis_message = get_message_from_redis(key)
 
-if redis_message is not None:
-    if message_for_check == redis_message.decode("utf-8"):
-        print("[X] This message was sent")
-else:
+if redis_message is not None and message_for_check == redis_message.decode("utf-8"):
+    print("[X] This message was sent")
+elif redis_message is None or message_for_check != redis_message.decode("utf-8"):
     channel.basic_publish(exchange="py-homework",
                     routing_key="Test-key", body=json.dumps(body))
     print("[.] Message has send")
+else:
+    raise Exception("Something error")
+    
 channel.close()
