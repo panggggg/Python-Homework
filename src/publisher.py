@@ -1,7 +1,8 @@
+import arrow
 import json
 import pika
 import redis
-from typing import Dict
+from typing import Dict, Union
 
 from Config.development import config
 
@@ -21,6 +22,7 @@ redis_connect = redis.Redis(
     host=redis_config["host"], port=redis_config["port"], password=redis_config["password"])
 print(f"[ Connected to Redis ]")
 
+
 def get_input_meassage() -> Dict:
     message = {}
     print("Title: ")
@@ -36,26 +38,38 @@ def get_input_meassage() -> Dict:
     message["pageCount"] = pageCount
     message["authors"] = authors
     message["categories"] = categories
+    message["created_at"] = str(arrow.utcnow())
+    message["updated_at"] = str(arrow.utcnow())
 
     return message
 
-#NOTE: loads(dict -> str), dumps(str -> dict)
+def setup_message(message: Dict) -> str:
+    message = {}
+    message["title"] = message_dict.get("title")
+    message["pageCount"] = message_dict.get("pageCount")
+    message["authors"] = message_dict.get("authors")
+    message["categories"] = message_dict.get("categories")
+ 
+    return str(message)
+
+def get_message_from_redis(key: str) -> Union[bytes, None]:
+    get_from_redis = redis_connect.get(key)
+    return get_from_redis
 
 body = get_input_meassage()
-message = json.dumps(body)
-message_dict = json.loads(message)
-print(str(message_dict))
+message = json.dumps(body) #str -> dict
+message_dict = json.loads(message) #dict -> str
+
 get_title = message_dict.get("title")
 key = get_title.replace(" ", "")
+message_for_check = setup_message(message_dict)
+redis_message = get_message_from_redis(key)
 
-get_from_redis = redis_connect.get(key)
-message_from_redis = get_from_redis.decode("utf-8")
-
-if str(message_dict) == message_from_redis:
-    print("This message was sent")
+if redis_message is not None:
+    if message_for_check == redis_message.decode("utf-8"):
+        print("[X] This message was sent")
 else:
     channel.basic_publish(exchange="py-homework",
-                            routing_key="Test-key", body=json.dumps(body))
+                    routing_key="Test-key", body=json.dumps(body))
     print("[.] Message has send")
-
 channel.close()
