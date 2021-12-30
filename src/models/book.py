@@ -15,5 +15,4 @@ class UpdateBook(BaseModel):
     pageCount: Optional[int]
     authors: Optional[str]
     categories: Optional[str]
-    created_at: Optional[str]
     updated_at: str
