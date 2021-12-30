@@ -33,33 +33,42 @@ channel.exchange_declare(exchange="py-homework", exchange_type="direct")
 
 def callback(ch, method, properties, body):
     message = json.loads(body)
+
     book_title = message.get("title")
+    pageCount = message.get("pageCount")
+    authors = message.get("authors")
+    categories = message.get("categories")
+    updated_at = message.get("updated_at")
+
     key = book_title.replace(" ", "")
     
     redis = {}
-    redis["title"] = message.get("title")
-    redis["pageCount"] = message.get("pageCount")
-    redis["authors"] = message.get("authors")
-    redis["categories"] = message.get("categories")
-    redis_connect.set(key, str(redis))
+    redis["title"] = book_title
+    redis["pageCount"] = pageCount
+    redis["authors"] = authors
+    redis["categories"] = categories
 
     print("Receive message: ")
     print(f"""
-            Title: {message.get("title")}
-            pageCount:{message.get("pageCount")}
-            Authors: {message.get("authors")}
-            Categories: {message.get("categories")}
+            Title: {book_title}
+            pageCount:{pageCount}
+            Authors: {authors}
+            Categories: {categories}
         """)
+    
     if redis_connect.get(key) is None:
-        print("redis:", redis_connect.get(key))
         redis_connect.set(key, str(redis))
-        mongodb.save_to_mongo(message)
+        mongodb.update_to_mongo({'title': book_title},{ '$set': message})
         print("Successfully saved!")
-    else:
+    elif redis_connect.get(key) is not None:
         redis_connect.set(key, str(redis))
-        mongodb.update_to_mongo({'title': book_title}, message)
+        mongodb.update_to_mongo({'title': book_title},{ '$set': { 'title': book_title, 'pageCount': pageCount, 'authors': authors, 'categories': categories, 'updated_at': updated_at } })
         print("Successfully updated!")
+    else:
+        raise Exception("Something error")
     channel.basic_ack(delivery_tag=method.delivery_tag)
+    
+
 
 
 channel.basic_consume(queue="Test", on_message_callback=callback)
