@@ -6,9 +6,9 @@ from typing import Dict, Union
 
 from Config.development import config
 
-credentials = pika.PlainCredentials("root", "root")
+credentials = pika.PlainCredentials(config["rabbitmq_config"]["username"], config["rabbitmq_config"]["password"])
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host="localhost", credentials=credentials))
+    pika.ConnectionParameters(host=config["rabbitmq_config"]["host"], credentials=credentials))
 channel = connection.channel()
 
 channel.exchange_declare(exchange="py-homework", exchange_type="direct")
@@ -38,36 +38,23 @@ def get_input_meassage() -> Dict:
     message["pageCount"] = pageCount
     message["authors"] = authors
     message["categories"] = categories
-    message["created_at"] = str(arrow.utcnow())
-    message["updated_at"] = str(arrow.utcnow())
 
     return message
-
-def setup_message(message: Dict) -> str:
-    message = {}
-    message["title"] = message_dict.get("title")
-    message["pageCount"] = message_dict.get("pageCount")
-    message["authors"] = message_dict.get("authors")
-    message["categories"] = message_dict.get("categories")
- 
-    return str(message)
 
 def get_message_from_redis(key: str) -> Union[bytes, None]:
     get_from_redis = redis_connect.get(key)
     return get_from_redis
 
 body = get_input_meassage()
-message = json.dumps(body) #str -> dict
-message_dict = json.loads(message) #dict -> str
+message = json.dumps(body) #dumps: dict -> json str, loads: json str -> dict
 
-get_title = message_dict.get("title")
+get_title = body.get("title")
 key = get_title.replace(" ", "")
-message_for_check = setup_message(message_dict)
 redis_message = get_message_from_redis(key)
 
-if redis_message is not None and message_for_check == redis_message.decode("utf-8"):
-    print("[X] This message was sent")
-elif redis_message is None or message_for_check != redis_message.decode("utf-8"):
+if redis_message is not None and str(body) == redis_message.decode("utf-8"):
+    print("[X] This message has was sent")
+elif redis_message is None or str(body) != redis_message.decode("utf-8"):
     channel.basic_publish(exchange="py-homework",
                     routing_key="Test-key", body=json.dumps(body))
     print("[.] Message has send")
