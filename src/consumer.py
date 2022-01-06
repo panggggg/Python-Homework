@@ -23,9 +23,9 @@ redis_connect = redis.Redis(
     host=redis_config["host"], port=redis_config["port"], password=redis_config["password"])
 print(f"[ Connected to Redis ]")
 
-credentials = pika.PlainCredentials("root", "root")
+credentials = pika.PlainCredentials(config["rabbitmq_config"]["username"], config["rabbitmq_config"]["password"])
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host="localhost", credentials=credentials))
+    pika.ConnectionParameters(host=config["rabbitmq_config"]["host"], credentials=credentials))
 channel = connection.channel()
 
 channel.exchange_declare(exchange="py-homework", exchange_type="direct")
@@ -41,7 +41,7 @@ def callback(ch, method, properties, body):
     updated_at = message.get("updated_at")
 
     key = book_title.replace(" ", "")
-    
+
     redis = {}
     redis["title"] = book_title
     redis["pageCount"] = pageCount
@@ -55,20 +55,18 @@ def callback(ch, method, properties, body):
             Authors: {authors}
             Categories: {categories}
         """)
-    
+
     if redis_connect.get(key) is None:
         redis_connect.set(key, str(redis))
-        mongodb.update_to_mongo({'title': book_title},{ '$set': message})
+        mongodb.update_to_mongo({'title': book_title}, {'$set': message, '$currentDate': {'created_at': True, 'updated_at': True}})
         print("Successfully saved!")
     elif redis_connect.get(key) is not None:
         redis_connect.set(key, str(redis))
-        mongodb.update_to_mongo({'title': book_title},{ '$set': { 'title': book_title, 'pageCount': pageCount, 'authors': authors, 'categories': categories, 'updated_at': updated_at } })
+        mongodb.update_to_mongo({'title': book_title}, {'$set': message, '$currentDate': {'updated_at': True}})
         print("Successfully updated!")
     else:
         raise Exception("Something error")
     channel.basic_ack(delivery_tag=method.delivery_tag)
-    
-
 
 
 channel.basic_consume(queue="Test", on_message_callback=callback)
