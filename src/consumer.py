@@ -1,3 +1,4 @@
+import arrow
 import json
 import pika
 import redis
@@ -38,7 +39,12 @@ def callback(ch, method, properties, body):
     pageCount = message.get("pageCount")
     authors = message.get("authors")
     categories = message.get("categories")
-    updated_at = message.get("updated_at")
+
+    update_value = {
+        'pageCount': pageCount,
+        'authors': authors,
+        'categories': categories
+    }
 
     key = book_title.replace(" ", "")
 
@@ -56,16 +62,19 @@ def callback(ch, method, properties, body):
             Categories: {categories}
         """)
 
-    if redis_connect.get(key) is None:
-        redis_connect.set(key, str(redis))
-        mongodb.update_to_mongo({'title': book_title}, {'$set': message, '$currentDate': {'created_at': True, 'updated_at': True}})
-        print("Successfully saved!")
-    elif redis_connect.get(key) is not None:
-        redis_connect.set(key, str(redis))
-        mongodb.update_to_mongo({'title': book_title}, {'$set': message, '$currentDate': {'updated_at': True}})
-        print("Successfully updated!")
-    else:
-        raise Exception("Something error")
+    # if redis_connect.get(key) is None:
+    #     redis_connect.set(key, str(redis))
+    #     mongodb.update_to_mongo({'title': book_title}, {'$set': update_value, '$setOnInsert': {'title': book_title}, '$currentDate': {'created_at': True, 'updated_at': True}})
+    #     print("Successfully saved!")
+    # elif redis_connect.get(key) is not None:
+    #     redis_connect.set(key, str(redis))
+    #     mongodb.update_to_mongo({'title': book_title}, {'$set': update_value, '$currentDate': {'updated_at': True}})
+    #     print("Successfully updated!")
+    # else:
+    #     raise Exception("Something error")
+    
+    redis_connect.set(key, str(redis))
+    mongodb.update_to_mongo({'title': book_title}, {'$set': update_value, '$setOnInsert': {'title': book_title, 'created_at': arrow.utcnow()}, '$currentDate': {'updated_at': True}})
     channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
