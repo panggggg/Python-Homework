@@ -1,4 +1,3 @@
-import arrow
 import json
 import pika
 import redis
